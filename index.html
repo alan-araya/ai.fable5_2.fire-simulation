@@ -56,17 +56,59 @@
 		#fireBtn { position: fixed; right: 22px; bottom: 26px; width: 84px; height: 84px; border-radius: 50%; border: 1px solid rgba(255, 122, 26, .6);
 			background: rgba(255, 90, 10, .18); color: #ffd9b0; font: 600 12px ui-sans-serif, system-ui, sans-serif; letter-spacing: .12em;
 			display: none; pointer-events: auto; touch-action: none; }
-		#gpuNotice { position: fixed; top: 22px; left: 50%; transform: translateX(-50%); width: min(560px, calc(100vw - 32px)); z-index: 11;
-			display: none; padding: 16px 18px 14px; border: 1px solid rgba(255, 122, 26, .45); border-radius: 8px; background: rgba(8, 9, 12, .92);
-			font: 12.5px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif; color: var(--ash); letter-spacing: .02em; }
+		/* ---- GPU: botão, aviso e tutorial ---- */
+		#gpuBtn { position: fixed; right: 28px; top: 92px; z-index: 12; display: flex; align-items: center; gap: 8px; padding: 6px 12px;
+			border: 1px solid rgba(201, 194, 184, .28); border-radius: 999px; background: rgba(0, 0, 0, .45); color: var(--ash); cursor: pointer;
+			font: 600 11px ui-sans-serif, system-ui, "Segoe UI", sans-serif; letter-spacing: .1em; text-transform: uppercase; transition: border-color .2s, background .2s; }
+		#gpuBtn:hover { border-color: var(--ember); background: rgba(255, 90, 10, .16); }
+		#gpuBtn i { width: 8px; height: 8px; border-radius: 50%; background: #777; }
+		#gpuBtn.discrete i { background: #5fd38a; box-shadow: 0 0 8px #5fd38a; }
+		#gpuBtn.integrated i, #gpuBtn.software i, #gpuBtn.none i { background: #ffae3a; box-shadow: 0 0 8px #ff8a1a; animation: pulse 1.6s infinite; }
+		@keyframes pulse { 50% { opacity: .35; } }
+
+		#gpuNotice { position: fixed; right: 28px; top: 132px; z-index: 12; width: min(330px, calc(100vw - 32px)); display: none; padding: 13px 15px;
+			border: 1px solid rgba(255, 122, 26, .45); border-radius: 8px; background: rgba(8, 9, 12, .92);
+			font: 12px/1.55 ui-sans-serif, system-ui, "Segoe UI", sans-serif; color: var(--ash); }
 		#gpuNotice.show { display: block; }
-		#gpuNotice h2 { margin: 0 0 6px; font: 600 13px ui-sans-serif, system-ui, sans-serif; color: #ffb27a; letter-spacing: .04em; }
-		#gpuNotice ol { margin: 6px 0 8px; padding-left: 20px; }
-		#gpuNotice code { font: 11.5px ui-monospace, Consolas, monospace; background: rgba(255, 255, 255, .07); padding: 2px 6px; border-radius: 3px; user-select: all; -webkit-user-select: all; }
-		#gpuNotice button { font: 600 11px ui-sans-serif, system-ui, sans-serif; color: var(--ash); background: rgba(255, 255, 255, .06);
-			border: 1px solid rgba(201, 194, 184, .3); border-radius: 4px; padding: 3px 9px; cursor: pointer; }
-		#gpuNotice #gpuClose { position: absolute; top: 10px; right: 10px; border: 0; background: none; font-size: 16px; color: var(--dim); }
-		#gpuNotice small { color: var(--dim); }
+		#gpuNotice b { color: #ffb27a; }
+		#gpuNotice .row { display: flex; gap: 8px; margin-top: 10px; }
+
+		.gbtn { font: 600 11.5px ui-sans-serif, system-ui, sans-serif; color: var(--ash); background: rgba(255, 255, 255, .06);
+			border: 1px solid rgba(201, 194, 184, .3); border-radius: 5px; padding: 5px 11px; cursor: pointer; }
+		.gbtn:hover { border-color: var(--ember); color: #fff; }
+		.gbtn.main { border-color: rgba(255, 122, 26, .7); background: rgba(255, 90, 10, .22); color: #ffe2c6; }
+
+		#gpuHelp { position: fixed; inset: 0; z-index: 20; display: none; place-items: center; padding: 16px; background: rgba(2, 3, 5, .72); backdrop-filter: blur(3px); }
+		#gpuHelp.show { display: grid; }
+		#gpuHelp .panel { position: relative; width: min(680px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; padding: 26px 28px 22px;
+			border: 1px solid rgba(255, 122, 26, .35); border-radius: 10px; background: #0b0c10; box-shadow: 0 20px 80px rgba(0, 0, 0, .7), 0 0 40px rgba(255, 90, 10, .08);
+			font: 13px/1.6 ui-sans-serif, system-ui, "Segoe UI", sans-serif; color: var(--ash); scrollbar-color: rgba(255, 122, 26, .45) transparent; }
+		#gpuHelp h2 { margin: 0 0 4px; font: 400 18px "Cinzel", Georgia, serif; letter-spacing: .2em; text-transform: uppercase; text-shadow: 0 0 18px rgba(255, 110, 20, .5); }
+		#gpuHelp h3 { margin: 0 0 6px; font: 600 13.5px ui-sans-serif, system-ui, sans-serif; color: #ffd2a8; }
+		#gpuHelp p { margin: 6px 0; }
+		#gpuHelp .lead { color: var(--dim); }
+		#gpuHelp .status { display: flex; align-items: center; gap: 10px; margin: 14px 0 18px; padding: 10px 12px; border-radius: 6px; background: rgba(255, 255, 255, .04); }
+		#gpuHelp .status i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: #ffae3a; }
+		#gpuHelp .status.discrete i { background: #5fd38a; }
+		#gpuHelp .step { position: relative; margin: 0 0 12px; padding: 14px 16px 12px 52px; border: 1px solid rgba(201, 194, 184, .14); border-radius: 8px; background: rgba(255, 255, 255, .02); }
+		#gpuHelp .step > .n { position: absolute; left: 14px; top: 13px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+			font: 700 12px ui-sans-serif, system-ui, sans-serif; color: #1a0a02; background: var(--ember); }
+		#gpuHelp .step.alt > .n { background: rgba(201, 194, 184, .5); }
+		#gpuHelp .tag { display: inline-block; margin-left: 6px; padding: 0 7px; border-radius: 3px; font: 600 10px ui-sans-serif, system-ui, sans-serif;
+			letter-spacing: .08em; text-transform: uppercase; vertical-align: 2px; background: rgba(95, 211, 138, .16); color: #8ee6ad; }
+		#gpuHelp ol, #gpuHelp ul { margin: 4px 0; padding-left: 18px; }
+		#gpuHelp li { margin: 3px 0; }
+		#gpuHelp code { font: 12px ui-monospace, Consolas, monospace; background: rgba(255, 255, 255, .08); padding: 2px 6px; border-radius: 3px;
+			user-select: all; -webkit-user-select: all; word-break: break-all; }
+		#gpuHelp kbd { min-width: 0; padding: 1px 6px; }
+		#gpuHelp .copy { margin-left: 4px; padding: 2px 8px; font-size: 10.5px; }
+		#gpuHelp details { margin: 14px 0 0; padding: 10px 14px; border-radius: 8px; background: rgba(255, 255, 255, .03); }
+		#gpuHelp summary { cursor: pointer; font-weight: 600; color: #ffd2a8; }
+		#gpuHelp .x { position: absolute; top: 12px; right: 14px; border: 0; background: none; color: var(--dim); font-size: 22px; cursor: pointer; }
+		#gpuHelp .x:hover { color: #fff; }
+		#gpuHelp .foot { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; color: var(--dim); font-size: 12px; }
+		#gpuHelp .foot span { flex: 1 1 300px; }
+		@media (pointer: coarse) { #gpuBtn { top: 112px; } }
 		@media (pointer: coarse) { #fireBtn { display: block; } #hint { display: none; } }
 	</style>
 </head>
@@ -85,15 +127,73 @@
 	</div>
 	<button id="fireBtn">FOGO</button>
 
-	<div id="gpuNotice" role="dialog" aria-label="Aviso de GPU">
-		<button id="gpuClose" aria-label="Fechar">×</button>
-		<h2>Rodando em <span id="gpuName"></span></h2>
-		<div><span id="gpuWhat"></span> A qualidade foi reduzida. Se o computador tiver placa de vídeo dedicada, o navegador precisa ser mandado usá-la (a página não consegue pedir isso sozinha):</div>
-		<ol>
-			<li>Abra <code id="gpuFlag"></code> <button id="gpuCopy">copiar</button> na barra de endereço, ative <b>Force high-performance GPU</b> e reinicie o navegador.</li>
-			<li id="gpuWin">Ou no Windows: Configurações → Sistema → Tela → Elementos gráficos → escolha o navegador → <b>Alto desempenho</b>, e reinicie o navegador.</li>
-		</ol>
-		<small>Notebook: deixe na tomada. Para conferir, o canto superior direito mostra qual GPU está em uso.</small>
+	<button id="gpuBtn" class="none" title="Como usar a placa de vídeo dedicada"><i></i>GPU</button>
+
+	<div id="gpuNotice" role="status">
+		<b id="gpuNoticeTitle"></b>
+		<div id="gpuNoticeText"></div>
+		<div class="row"><button class="gbtn main" id="gpuNoticeHelp">Como habilitar</button><button class="gbtn" id="gpuNoticeClose">Agora não</button></div>
+	</div>
+
+	<div id="gpuHelp" role="dialog" aria-modal="true" aria-labelledby="gpuHelpTitle">
+		<div class="panel">
+			<button class="x" data-close aria-label="Fechar">×</button>
+			<h2 id="gpuHelpTitle">Ligar a placa de vídeo</h2>
+			<p class="lead">Este simulador roda uma simulação de fluido 3D inteira na GPU. Em notebooks com duas GPUs, o navegador costuma abrir na
+				integrada, que é bem mais fraca. No Windows, o Chrome e o Edge usam uma só GPU para o navegador inteiro e
+				<b>uma página não consegue pedir a dedicada</b>: é preciso configurar uma vez no navegador ou no Windows.</p>
+
+			<div class="status" id="gpuStatus"><i></i><span id="gpuStatusText">Verificando a GPU…</span></div>
+
+			<div class="step">
+				<span class="n">1</span>
+				<h3>Pela flag do navegador <span class="tag">mais rápido</span></h3>
+				<ol>
+					<li>Copie este endereço <button class="gbtn copy" data-copy="flag">copiar</button><br><code data-text="flag"></code></li>
+					<li>Cole na barra de endereço de uma aba nova e aperte <kbd>Enter</kbd>.</li>
+					<li>Em <b>Force high-performance GPU</b>, troque <i>Default</i> por <b>Enabled</b>.</li>
+					<li>Clique em <b>Relaunch</b> (reiniciar), no canto inferior da página.</li>
+				</ol>
+			</div>
+
+			<div class="step alt" data-only="windows">
+				<span class="n">2</span>
+				<h3>Pelas configurações de gráficos do Windows</h3>
+				<ol>
+					<li>Aperte <kbd>Win</kbd> + <kbd>I</kbd> e vá em <b>Sistema → Tela → Elementos gráficos</b>.</li>
+					<li>Procure <b data-text="browserName"></b> na lista. Se não estiver lá, clique em <b>Procurar</b> e escolha o executável:<br>
+						<code data-text="exe"></code> <button class="gbtn copy" data-copy="exe">copiar</button></li>
+					<li>Clique no navegador, abra as <b>Opções</b> e escolha <b>Alto desempenho</b> (a placa NVIDIA ou AMD aparece pelo nome). Salve.</li>
+					<li>Feche <b>todas</b> as janelas do navegador e abra de novo.</li>
+				</ol>
+			</div>
+
+			<div class="step alt" data-only="windows">
+				<span class="n">3</span>
+				<h3>Pelo painel da placa (alternativa)</h3>
+				<p><b>NVIDIA:</b> botão direito na área de trabalho → <b>Painel de controle da NVIDIA → Gerenciar as configurações 3D →
+					Configurações de programa</b> → escolha o navegador → <b>Processador NVIDIA de alto desempenho</b> → Aplicar.</p>
+				<p><b>AMD:</b> <b>AMD Software → Gráficos</b> (ou Sistema → Gráficos alternáveis) → escolha o navegador → <b>Alto desempenho</b>.</p>
+			</div>
+
+			<details>
+				<summary>Ainda não funcionou?</summary>
+				<ul>
+					<li>Confira se a <b>aceleração por hardware</b> está ligada: <code data-text="settings"></code>
+						<button class="gbtn copy" data-copy="settings">copiar</button> → <i>Usar aceleração gráfica quando disponível</i>.</li>
+					<li>Notebook: ligue na tomada e desligue o modo de economia de energia, que pode prender a placa dedicada.</li>
+					<li>Atualize o driver da placa de vídeo (NVIDIA App / AMD Software).</li>
+					<li>Para ver o que o navegador detectou, abra <code data-text="gpuPage"></code> <button class="gbtn copy" data-copy="gpuPage">copiar</button>.</li>
+					<li>Sem WebGPU? Use Chrome ou Edge atualizados.</li>
+					<li>macOS escolhe a GPU sozinho; em celulares não há o que configurar.</li>
+				</ul>
+			</details>
+
+			<div class="foot">
+				<span>Depois de reiniciar o navegador, volte aqui: o ponto do botão GPU fica verde e o nome da placa aparece no canto superior direito.</span>
+				<button class="gbtn main" data-close>Entendi</button>
+			</div>
+		</div>
 	</div>
 
 	<script type="module" src="/src/main.js"></script>

@@ -13,8 +13,10 @@ import { createEnvironment, makeFireGI, MOON_DIR } from './environment.js';
 import { createRock } from './rock.js';
 import { createDragon } from './dragon.js';
 import { createEmbers } from './embers.js';
+import { setupGpuHelp, setGpu } from './gpuHelp.js';
 
 let quality;
+setupGpuHelp();
 const $ = ( id ) => document.getElementById( id );
 
 init().catch( ( err ) => {
@@ -28,6 +30,8 @@ init().catch( ( err ) => {
 async function init() {
 
 	if ( ! navigator.gpu ) {
+
+		setGpu( 'none' );
 
 		throw new Error( 'este simulador precisa de WebGPU (Chrome ou Edge recentes, com aceleração por hardware ligada).' );
 
@@ -48,7 +52,7 @@ async function init() {
 	} catch ( e ) { /* sem info do adaptador */ }
 
 	quality = getQuality( gpuKind );
-	showGpuNotice( gpuKind, gpuName );
+	setGpu( gpuKind, gpuName );
 
 	// ---- renderer -------------------------------------------------------
 
@@ -455,37 +459,3 @@ async function init() {
 
 }
 
-// ---- aviso de GPU integrada ---------------------------------------------
-
-function showGpuNotice( kind, name ) {
-
-	if ( kind === 'discrete' ) return;
-	try {
-
-		if ( localStorage.getItem( 'gpuNoticeDismissed' ) === kind ) return;
-
-	} catch ( e ) { /* sem storage */ }
-
-	const box = $( 'gpuNotice' );
-	const isWin = /windows/i.test( navigator.userAgent );
-	const browser = /edg\//i.test( navigator.userAgent ) ? 'edge' : 'chrome';
-	$( 'gpuName' ).textContent = name || ( kind === 'software' ? 'renderização por software' : 'GPU integrada' );
-	$( 'gpuWhat' ).textContent = kind === 'software' ? 'o navegador está desenhando sem placa de vídeo (por software).' : 'o navegador abriu na GPU integrada.';
-	$( 'gpuFlag' ).textContent = browser + '://flags/#force-high-performance-gpu';
-	$( 'gpuWin' ).style.display = isWin ? '' : 'none';
-	box.classList.add( 'show' );
-
-	$( 'gpuCopy' ).onclick = () => {
-
-		navigator.clipboard?.writeText( $( 'gpuFlag' ).textContent );
-		$( 'gpuCopy' ).textContent = 'copiado';
-
-	};
-	$( 'gpuClose' ).onclick = () => {
-
-		box.classList.remove( 'show' );
-		try { localStorage.setItem( 'gpuNoticeDismissed', kind ); } catch ( e ) { /* sem storage */ }
-
-	};
-
-}

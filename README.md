@@ -52,15 +52,21 @@ No Windows, Chrome e Edge usam **um único adaptador para o navegador inteiro**
 e ignoram `powerPreference: 'high-performance'` do WebGPU (a própria
 documentação do Chrome diz isso). Uma página não tem como pedir a placa
 dedicada. O jogo então lê `adapter.info`, detecta GPU integrada (Intel
-UHD/Iris/Xe, Radeon integrada) ou software, reduz a qualidade e mostra um aviso
-com as duas soluções, que o usuário precisa aplicar uma vez:
+UHD/Iris/Xe, Radeon integrada) ou software e reduz a qualidade.
+
+O botão **GPU** no canto superior direito (ponto verde = placa dedicada,
+laranja = integrada) abre um tutorial passo a passo, que também aparece como
+aviso na primeira visita com GPU integrada. O usuário aplica uma vez:
 
 1. `chrome://flags/#force-high-performance-gpu` (ou `edge://flags/...`) →
-   *Enabled* → reiniciar o navegador; ou
+   *Enabled* → *Relaunch*; ou
 2. Configurações do Windows → Sistema → Tela → Elementos gráficos → navegador
-   → **Alto desempenho** → reiniciar o navegador.
+   → **Alto desempenho** → reiniciar o navegador; ou
+3. Painel de controle da NVIDIA / AMD Software → navegador → alto desempenho.
 
-O HUD mostra qual GPU está em uso.
+O tutorial tem botões de copiar para os endereços (páginas `chrome://` não
+podem ser abertas por link) e se adapta ao navegador e ao sistema. O código
+fica em `src/gpuHelp.js`.
 
 ### Publicar (Vercel)
 
