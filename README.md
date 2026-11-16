@@ -1,5 +1,30 @@
 # Dracarys: simulador de fogo de dragão (three.js + WebGPU)
 
+**▶ Jogar agora: https://ai-fable5-2-fire-simulation.vercel.app/**
+(Chrome ou Edge com WebGPU; de preferência com placa de vídeo dedicada)
+
+[![Prévia animada: o dragão cospe fogo e a pedra derrete](docs/media/preview.gif)](docs/media/fire-simulation.mp4)
+
+*Clique na prévia para ver o [vídeo completo](docs/media/fire-simulation.mp4)
+(18 s, 2530×1394, RTX 4060 no preset `inferno`).*
+
+**Autor:** Alan Araya
+
+**Objetivo:** estudo sobre simulação de fogo com three.js e sobre as
+capacidades do Claude Fable 5.2 em projetar uma simulação realista no
+navegador, com uso extenso de recursos de GPU. O código, a pesquisa e o
+modelo do dragão foram produzidos pelo Fable 5.2 em sessões do Claude Code,
+com texturas geradas pelo Codex.
+
+| | |
+|---|---|
+| ![Dragão de frente cuspindo fogo, preset inferno](docs/media/screenshot-frontal-inferno.webp) | ![Dragão de perfil com a fumaça iluminada pelo fogo](docs/media/screenshot-perfil.webp) |
+| De frente, preset `inferno` (14,2 M voxels) | De perfil: fumaça iluminada pelo próprio fogo |
+| ![Jato de fogo atingindo a pedra incandescente](docs/media/screenshot-rocha-derretendo.webp) | |
+| O jato atinge a pedra, que racha e derrete | |
+
+## O que é
+
 Um dragão cospe fogo numa pedra até ela derreter. O fogo não é um sprite nem
 um sistema de partículas: é uma **simulação de fluido 3D** (gás quente, fumaça
 e combustível) rodando inteira na GPU em compute shaders, renderizada por
@@ -69,6 +94,8 @@ podem ser abertas por link) e se adapta ao navegador e ao sistema. O código
 fica em `src/gpuHelp.js`.
 
 ### Publicar (Vercel)
+
+Publicado em https://ai-fable5-2-fire-simulation.vercel.app/ (cada push na `main` publica de novo).
 
 É um site estático gerado pelo Vite. Na Vercel: *Add New → Project*, importe
 este repositório e aceite o preset **Vite** (build `npm run build`, saída
