@@ -32,7 +32,7 @@ No celular aparece um botão `FOGO`.
 
 ### Qualidade
 
-`?q=potato | low | medium | high (padrão) | ultra | inferno`
+`?q=potato | low | medium | high | ultra | inferno`
 
 | preset | grade de gás | voxels | passos do raymarch | advecção do gás |
 |---|---|---|---|---|
@@ -42,10 +42,25 @@ No celular aparece um botão `FOGO`.
 | ultra | 320×160×160 | 8,2 M | 128 | MacCormack |
 | inferno | 384×192×192 | 14,2 M | 176, resolução cheia | MacCormack |
 
-**GPU dedicada:** no Windows o Chrome ignora `powerPreference` e pode abrir na
-GPU integrada. O HUD mostra qual GPU está em uso. Para forçar a dedicada:
-Configurações do Windows → Sistema → Tela → Elementos gráficos → Chrome →
-Alto desempenho.
+Sem `?q=`, a qualidade é escolhida pela GPU que o navegador entregou: `high`
+em placa dedicada, `low` em GPU integrada, `potato` em renderização por
+software.
+
+### GPU dedicada (notebooks com duas GPUs)
+
+No Windows, Chrome e Edge usam **um único adaptador para o navegador inteiro**
+e ignoram `powerPreference: 'high-performance'` do WebGPU (a própria
+documentação do Chrome diz isso). Uma página não tem como pedir a placa
+dedicada. O jogo então lê `adapter.info`, detecta GPU integrada (Intel
+UHD/Iris/Xe, Radeon integrada) ou software, reduz a qualidade e mostra um aviso
+com as duas soluções, que o usuário precisa aplicar uma vez:
+
+1. `chrome://flags/#force-high-performance-gpu` (ou `edge://flags/...`) →
+   *Enabled* → reiniciar o navegador; ou
+2. Configurações do Windows → Sistema → Tela → Elementos gráficos → navegador
+   → **Alto desempenho** → reiniciar o navegador.
+
+O HUD mostra qual GPU está em uso.
 
 ### Publicar (Vercel)
 

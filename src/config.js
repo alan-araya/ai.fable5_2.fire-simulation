@@ -20,11 +20,24 @@ export const QUALITY_PRESETS = {
 	inferno: { grid: [ 384, 192, 192 ], steps: 176, scale: 1.0, maxWidth: 4096, jacobi: 40, mac: true, embers: 80000, shadow: 2048, pixelRatio: Math.min( window.devicePixelRatio, 2 ) }
 };
 
-export function getQuality() {
+// GPU integrada (Intel UHD/Iris/Xe, Radeon integrada) ou adaptador de software
+export function classifyAdapter( info ) {
+
+	const text = `${ info.vendor || '' } ${ info.architecture || '' } ${ info.description || '' } ${ info.device || '' }`.toLowerCase();
+	if ( info.isFallbackAdapter || /swiftshader|llvmpipe|microsoft basic|software/.test( text ) ) return 'software';
+	if ( /intel/.test( text ) && ! /\barc\b|alchemist|battlemage|xe-hpg|xe2-hpg|xe-hpc/.test( text ) ) return 'integrated';
+	if ( /radeon\(tm\) graphics|radeon graphics|vega \d+ graphics|\b(660|680|740|760|780|880|890)m\b/.test( text ) ) return 'integrated';
+	return 'discrete';
+
+}
+
+// ?q= manda; sem ele, a qualidade segue o tipo de GPU que o navegador entregou
+export function getQuality( gpuKind = 'discrete' ) {
 
 	const q = new URLSearchParams( location.search ).get( 'q' );
-	const name = QUALITY_PRESETS[ q ] ? q : 'high';
-	return { name, ...QUALITY_PRESETS[ name ] };
+	const auto = gpuKind === 'software' ? 'potato' : gpuKind === 'integrated' ? 'low' : 'high';
+	const name = QUALITY_PRESETS[ q ] ? q : auto;
+	return { name, auto: ! QUALITY_PRESETS[ q ], ...QUALITY_PRESETS[ name ] };
 
 }
 

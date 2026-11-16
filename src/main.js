@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
-import { getQuality, QUALITY_PRESETS, MOUTH_POS, ROCK_CENTER } from './config.js';
+import { getQuality, classifyAdapter, QUALITY_PRESETS, MOUTH_POS, ROCK_CENTER } from './config.js';
 import { createBlackbodyLUT, createNoiseTexture3D } from './lut.js';
 import { FireSim, SIM_DT } from './fireSim.js';
 import { makeVolume, createVolumeUniforms, volumeTunables } from './fireVolume.js';
@@ -14,7 +14,7 @@ import { createRock } from './rock.js';
 import { createDragon } from './dragon.js';
 import { createEmbers } from './embers.js';
 
-const quality = getQuality();
+let quality;
 const $ = ( id ) => document.getElementById( id );
 
 init().catch( ( err ) => {
@@ -32,6 +32,23 @@ async function init() {
 		throw new Error( 'este simulador precisa de WebGPU (Chrome ou Edge recentes, com aceleração por hardware ligada).' );
 
 	}
+
+	// ---- GPU ------------------------------------------------------------
+	// No Windows o Chrome/Edge usam um único adaptador para o navegador todo e
+	// ignoram powerPreference: a página não consegue pedir a placa dedicada.
+	// Então lemos qual GPU veio, ajustamos a qualidade e avisamos o usuário.
+
+	let gpuName = '', gpuKind = 'discrete';
+	try {
+
+		const info = ( await navigator.gpu.requestAdapter( { powerPreference: 'high-performance' } ) ).info;
+		gpuName = ( info.description || `${ info.vendor } ${ info.architecture }` ).trim();
+		gpuKind = classifyAdapter( info );
+
+	} catch ( e ) { /* sem info do adaptador */ }
+
+	quality = getQuality( gpuKind );
+	showGpuNotice( gpuKind, gpuName );
 
 	// ---- renderer -------------------------------------------------------
 
@@ -252,15 +269,6 @@ async function init() {
 	const qualityLinks = Object.keys( QUALITY_PRESETS ).map( ( k ) => `<a href="?q=${ k }" class="${ k === quality.name ? 'on' : '' }">${ k }</a>` ).join( '' );
 	const cells = quality.grid[ 0 ] * quality.grid[ 1 ] * quality.grid[ 2 ];
 
-	// qual GPU o navegador escolheu (no Windows o Chrome ignora powerPreference)
-	let gpuName = '';
-	try {
-
-		const info = ( await navigator.gpu.requestAdapter() ).info;
-		gpuName = ( info.description || `${ info.vendor } ${ info.architecture }` ).trim();
-
-	} catch ( e ) { /* sem info do adaptador */ }
-
 	let fpsFrames = 0, fpsTime = 0, fps = 0, simSteps = 0, simRate = 0;
 
 	function updateHUD( dt ) {
@@ -443,6 +451,41 @@ async function init() {
 			return out;
 
 		}
+	};
+
+}
+
+// ---- aviso de GPU integrada ---------------------------------------------
+
+function showGpuNotice( kind, name ) {
+
+	if ( kind === 'discrete' ) return;
+	try {
+
+		if ( localStorage.getItem( 'gpuNoticeDismissed' ) === kind ) return;
+
+	} catch ( e ) { /* sem storage */ }
+
+	const box = $( 'gpuNotice' );
+	const isWin = /windows/i.test( navigator.userAgent );
+	const browser = /edg\//i.test( navigator.userAgent ) ? 'edge' : 'chrome';
+	$( 'gpuName' ).textContent = name || ( kind === 'software' ? 'renderização por software' : 'GPU integrada' );
+	$( 'gpuWhat' ).textContent = kind === 'software' ? 'o navegador está desenhando sem placa de vídeo (por software).' : 'o navegador abriu na GPU integrada.';
+	$( 'gpuFlag' ).textContent = browser + '://flags/#force-high-performance-gpu';
+	$( 'gpuWin' ).style.display = isWin ? '' : 'none';
+	box.classList.add( 'show' );
+
+	$( 'gpuCopy' ).onclick = () => {
+
+		navigator.clipboard?.writeText( $( 'gpuFlag' ).textContent );
+		$( 'gpuCopy' ).textContent = 'copiado';
+
+	};
+	$( 'gpuClose' ).onclick = () => {
+
+		box.classList.remove( 'show' );
+		try { localStorage.setItem( 'gpuNoticeDismissed', kind ); } catch ( e ) { /* sem storage */ }
+
 	};
 
 }
