@@ -1,0 +1,11 @@
+node_modules
+dist
+logs
+.vercel
+.claude/
+
+# saídas brutas do Codex (logs locais)
+art_source/**/*.log
+art_source/**/*.jsonl
+art_source/**/last-message.md
+art_source/*/*.log

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<title>Dracarys — simulador de fogo de dragão</title>
+	<style>
+		:root { --ember: #ff7a1a; --ash: #c9c2b8; --dim: rgba(201, 194, 184, .62); }
+		* { box-sizing: border-box; }
+		html, body { margin: 0; height: 100%; background: #050608; overflow: hidden; color: var(--ash);
+			font-family: "Cinzel", "Trajan Pro", Georgia, "Times New Roman", serif; user-select: none; -webkit-user-select: none; }
+		canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+		#hud { position: fixed; inset: 0; pointer-events: none; transition: opacity .4s; }
+		#hud.hidden { opacity: 0; }
+
+		#title { position: absolute; top: 22px; left: 28px; letter-spacing: .32em; font-size: 15px; text-transform: uppercase;
+			text-shadow: 0 0 18px rgba(255, 110, 20, .55); }
+		#title small { display: block; margin-top: 6px; letter-spacing: .14em; font-size: 10.5px; color: var(--dim);
+			font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; text-transform: none; }
+
+		#stats { position: absolute; top: 22px; right: 28px; text-align: right; font: 11px/1.7 ui-monospace, "Cascadia Mono", Consolas, monospace;
+			color: var(--dim); }
+		#stats b { color: var(--ash); font-weight: 600; }
+		#stats a { color: var(--dim); text-decoration: none; pointer-events: auto; padding: 0 3px; }
+		#stats a:hover, #stats a.on { color: var(--ember); }
+
+		#rock { position: absolute; left: 50%; bottom: 84px; transform: translateX(-50%); width: min(460px, 70vw); text-align: center; }
+		#rock .label { display: flex; justify-content: space-between; font: 11px ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+			letter-spacing: .18em; text-transform: uppercase; color: var(--dim); margin-bottom: 7px; }
+		#rock .label b { color: var(--ash); font-weight: 600; }
+		#bar { height: 5px; background: rgba(255, 255, 255, .09); border-radius: 3px; overflow: hidden; }
+		#bar i { display: block; height: 100%; width: 100%; border-radius: 3px;
+			background: linear-gradient(90deg, #7a1c05, #ff5a0a 55%, #ffd27a); box-shadow: 0 0 12px rgba(255, 110, 20, .8);
+			transition: width .15s linear; }
+
+		#hint { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); white-space: nowrap;
+			font: 12px ui-sans-serif, system-ui, "Segoe UI", sans-serif; letter-spacing: .08em; color: var(--dim); }
+		kbd { display: inline-block; min-width: 22px; padding: 3px 8px; margin: 0 3px; border: 1px solid rgba(201, 194, 184, .35);
+			border-radius: 4px; font: 600 11px ui-monospace, Consolas, monospace; color: var(--ash); background: rgba(0, 0, 0, .35); }
+		kbd.space { min-width: 96px; text-align: center; }
+		kbd.active { border-color: var(--ember); color: #fff; background: rgba(255, 90, 10, .35); box-shadow: 0 0 16px rgba(255, 110, 20, .7); }
+
+		#done { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); text-align: center; opacity: 0;
+			transition: opacity 1.2s; letter-spacing: .3em; text-transform: uppercase; font-size: 26px;
+			text-shadow: 0 0 28px rgba(255, 110, 20, .9); }
+		#done.show { opacity: 1; }
+		#done small { display: block; margin-top: 14px; font: 12px ui-sans-serif, system-ui, sans-serif; letter-spacing: .12em; color: var(--dim); text-transform: none; }
+
+		#boot { position: fixed; inset: 0; display: grid; place-items: center; background: #050608; z-index: 10; transition: opacity .9s; text-align: center; }
+		#boot.gone { opacity: 0; pointer-events: none; }
+		#boot h1 { font-size: 30px; letter-spacing: .42em; font-weight: 400; margin: 0 0 14px; text-shadow: 0 0 30px rgba(255, 110, 20, .8); }
+		#boot p { font: 12px/1.7 ui-sans-serif, system-ui, "Segoe UI", sans-serif; color: var(--dim); letter-spacing: .08em; margin: 0; max-width: 520px; }
+		#boot p.err { color: #ff8a6a; }
+
+		#fireBtn { position: fixed; right: 22px; bottom: 26px; width: 84px; height: 84px; border-radius: 50%; border: 1px solid rgba(255, 122, 26, .6);
+			background: rgba(255, 90, 10, .18); color: #ffd9b0; font: 600 12px ui-sans-serif, system-ui, sans-serif; letter-spacing: .12em;
+			display: none; pointer-events: auto; touch-action: none; }
+		@media (pointer: coarse) { #fireBtn { display: block; } #hint { display: none; } }
+	</style>
+</head>
+<body>
+	<div id="boot"><div><h1>DRACARYS</h1><p id="bootMsg">Compilando shaders de fluido na GPU…</p></div></div>
+
+	<div id="hud">
+		<div id="title">Dracarys<small>simulação de fluido 3D · WebGPU · three.js</small></div>
+		<div id="stats"></div>
+		<div id="rock">
+			<div class="label"><span>Rocha</span><span><b id="rockTemp">20 °C</b> · <b id="rockPct">100%</b></span></div>
+			<div id="bar"><i id="barFill"></i></div>
+		</div>
+		<div id="hint"><kbd class="space" id="kSpace">ESPAÇO</kbd> cuspir fogo · <kbd>arrastar</kbd> orbitar · <kbd>scroll</kbd> zoom · <kbd>C</kbd> câmera cinema · <kbd>R</kbd> nova rocha · <kbd>L</kbd> luz de estúdio · <kbd>G</kbd> ajustes · <kbd>H</kbd> ocultar</div>
+		<div id="done">A rocha virou lava<small>pressione R para outra rocha</small></div>
+	</div>
+	<button id="fireBtn">FOGO</button>
+
+	<script type="module" src="/src/main.js"></script>
+</body>
+</html>
